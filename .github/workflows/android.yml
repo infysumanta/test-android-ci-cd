@@ -20,6 +20,10 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./android/gradlew
       - name: Build with Gradle
-        run: ./android/gradlew build
+        run: |
+          cd ./android
+          ./gradlew build
       - name: Build debug APK
-        run: bash ./android/gradlew assembleDebug --stacktrace
+        run: |
+          cd ./android
+          bash ./gradlew assembleDebug --stacktrace
