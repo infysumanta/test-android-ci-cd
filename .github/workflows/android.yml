@@ -33,14 +33,14 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Generate App Version Name
-        run: echo "VERSION_NAME=$(git describe --tags | sed 's/\(.*\)-/\1./' | sed 's/\(.*\)-/\1+/')" >> $GITHUB_ENV
+        run: echo ${{ github.run_id }}
 
       - name: Bump Version
         uses: chkfung/android-version-actions@v1.1
         with:
-          gradlePath: app/build.gradle.kts
+          gradlePath: ./android/app/build.gradle
           versionCode: ${{ github.run_number }}
-          versionName: ${{ env.VERSION_NAME }}
+          versionName: ${{ github.run_id }}
 
       - name: Generate the Android Debug Apk
         working-directory: ./android/
@@ -60,7 +60,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         with:
-          release_name: Release v.${{ env.VERSION_NAME }}
+          release_name: Release v.${{ github.run_id }}
           draft: false
           prerelease: false
         env:
