@@ -28,6 +28,10 @@ jobs:
       - name: Install app dependencies
         run: npm install
 
+      - name: Grant execute permission for gradlew
+        working-directory: ./android/
+        run: chmod +x ./gradlew
+
       - name: Generate the Android App Bundle
         working-directory: ./android/
         run: ./gradlew bundle
