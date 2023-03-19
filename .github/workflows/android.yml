@@ -1,39 +1,33 @@
-name: Android CI
+name: Build Android
 
-on:
-  push:
-    branches: ["main"]
+on: [push, pull_request]
 
 jobs:
   build:
+    name: Build APK
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout source
-      - uses: actions/checkout@v3
-      - name: set up JDK 11
+        uses: actions/checkout@v2
+
+      - name: Setup JDK 11
         uses: actions/setup-java@v3
         with:
           java-version: "11"
           distribution: "adopt"
           cache: gradle
+
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
           node-version: 16.x
+
       - name: Install Ionic
         run: npm install -g @ionic/cli
+
       - name: Install app dependencies
         run: npm install
-      - name: Build The Ionic Project
-        run: npm run build
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./android/gradlew
-      - name: Build debug APK
-        run: |
-          cd ./android
-          bash ./gradlew build
-      - name: Build debug APK
-        run: |
-          cd ./android
-          bash ./gradlew assembleDebug --stacktrace
+
+      - name: Generate the Android App Bundle
+        working-directory: ./android/
+        run: ./gradlew bundle
