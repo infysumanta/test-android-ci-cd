@@ -32,12 +32,47 @@ jobs:
         working-directory: ./android/
         run: chmod +x ./gradlew
 
+      - name: Generate App Version Name
+        run: echo "VERSION_NAME=$(git describe --tags | sed 's/\(.*\)-/\1./' | sed 's/\(.*\)-/\1+/')" >> $GITHUB_ENV
+
+      - name: Bump Version
+        uses: chkfung/android-version-actions@v1.1
+        with:
+          gradlePath: app/build.gradle.kts
+          versionCode: ${{ github.run_number }}
+          versionName: ${{ env.VERSION_NAME }}
+
       - name: Generate the Android Debug Apk
         working-directory: ./android/
         run: ./gradlew assembleDebug --stacktrace
+
+      - name: Build Release AAB
+        working-directory: ./android/
+        run: ./gradlew app:bundleDebug
 
       - name: Upload dev APK
         uses: actions/upload-artifact@v1
         with:
           name: app-dev
           path: ./android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          release_name: Release v.${{ env.VERSION_NAME }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Release APK
+        id: upload_release_asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./android/app/build/outputs/apk/debug/app-debug.apk
+          asset_name: app-debug.apk
+          asset_content_type: application/zip
