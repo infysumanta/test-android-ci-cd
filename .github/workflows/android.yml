@@ -32,9 +32,9 @@ jobs:
         working-directory: ./android/
         run: chmod +x ./gradlew
 
-      - name: Generate the Android App Bundle
+      - name: Generate the Android Debug Apk
         working-directory: ./android/
-        run: ./gradlew bundle
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload dev APK
         uses: actions/upload-artifact@v1
