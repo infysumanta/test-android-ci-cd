@@ -1,6 +1,10 @@
 name: Build Android
 
-on: [push, pull_request]
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
 
 jobs:
   build:
@@ -40,7 +44,7 @@ jobs:
         with:
           gradlePath: ./android/app/build.gradle
           versionCode: ${{ github.run_number }}
-          versionName: ${{ github.run_id }}
+          versionName: ${{ github.ref }}
 
       - name: Generate the Android Debug Apk
         working-directory: ./android/
@@ -60,7 +64,8 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         with:
-          release_name: Release v.${{ github.run_id }}
+          release_name: Release v.${{ github.ref }}
+          tag_name: ${{ github.ref }}
           draft: false
           prerelease: false
         env:
